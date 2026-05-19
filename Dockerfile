@@ -21,17 +21,21 @@ ENV OVERRIDE_CHROME_EXECUTABLE_PATH=/usr/bin/chromium
 
 FROM build-${TARGETARCH} AS final
 RUN groupadd -r jina
-RUN useradd -g jina  -G audio,video -m jina
+RUN useradd -g jina -G audio,video -m jina
 USER jina
 WORKDIR /app
+
 COPY package.json package-lock.json ./
 RUN npm ci
-COPY public ./public
+
+COPY . .
+
 RUN rm -rf ~/.config/chromium && mkdir -p ~/.config/chromium
-RUN NODE_COMPILE_CACHE=node_modules npm run dry-run
+RUN npm run build
+
 ENV NODE_COMPILE_CACHE=node_modules
 ENV PORT=8080
 
 EXPOSE 8080 8081
 ENTRYPOINT ["node"]
-CMD [ "build/stand-alone/crawl.js" ]
+CMD ["build/stand-alone/crawl.js"]
