@@ -3,7 +3,7 @@ FROM node:24 AS base
 
 FROM base AS build-amd64
 RUN apt-get update \
-    && apt-get install -y wget gnupg \
+    && apt-get install -y wget gnupg curl \
     && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
     && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
     && apt-get update \
@@ -14,7 +14,7 @@ ENV OVERRIDE_CHROME_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
 
 FROM base AS build-arm64
 RUN apt-get update \
-    && apt-get install -y libreoffice chromium fonts-noto-cjk-extra fonts-noto-color-emoji fonts-liberation fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst fonts-freefont-ttf libxss1 zstd libc++-dev \
+    && apt-get install -y curl libreoffice chromium fonts-noto-cjk-extra fonts-noto-color-emoji fonts-liberation fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst fonts-freefont-ttf libxss1 zstd libc++-dev \
     --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 ENV OVERRIDE_CHROME_EXECUTABLE_PATH=/usr/bin/chromium
@@ -30,6 +30,7 @@ RUN npm ci
 
 COPY . .
 
+RUN bash ./download-external-assets.sh
 RUN rm -rf ~/.config/chromium && mkdir -p ~/.config/chromium
 RUN npm run build
 
