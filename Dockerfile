@@ -26,9 +26,7 @@ USER jina
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
-COPY build ./build
 COPY public ./public
-COPY licensed ./licensed
 RUN rm -rf ~/.config/chromium && mkdir -p ~/.config/chromium
 RUN NODE_COMPILE_CACHE=node_modules npm run dry-run
 ENV NODE_COMPILE_CACHE=node_modules
